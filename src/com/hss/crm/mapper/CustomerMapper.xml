@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+ #{ } 和 ${ } 会有不同的表现
+ #{ }：解析为一个 JDBC 预编译语句
+ 一个 #{ } 被解析为一个参数占位符 ? 。
+ 而${ } 仅仅为一个纯碎的 string 替换，在动态 SQL 解析阶段将会进行变量替换。
+
+
+-->
+<mapper namespace="com.hss.crm.mapper.CustomerMapper">
+
+    <sql id="customerQueryVo">
+        <where>
+            <if test="custName !=null and custName != '' ">
+                AND cst.cust_name like "%${custName}%"
+            </if>
+            <if test="custSource !=null and custSource != '' ">
+                AND cst.cust_source = #{custSource}
+            </if>
+            <if test="custIndustry !=null and custIndustry != '' ">
+                AND cst.cust_industry  = #{custIndustry}
+            </if>
+            <if test="custLevel !=null and custLevel != '' ">
+                AND cst.cust_level  = #{custLevel}
+            </if>
+        </where>
+    </sql>
+    <select id="queryCustomerByQueryVo" parameterType="com.hss.crm.pojo.QueryVo" resultType="com.hss.crm.pojo.Customer">
+      select cst.cust_id, cst.cust_name, cst.cust_user_id, cst.cust_create_id,b.dict_item_name cust_source,
+      c.dict_item_name cust_industry, d.dict_item_name cust_level,cst.cust_phone,
+      cst.cust_linkman,cst.cust_mobile,cst.cust_zipcode,cst.cust_address,cst.cust_createtime
+      FROM  customer cst left join base_dict b   on  cst.cust_source = b.dict_id
+      left join base_dict c  on  cst.cust_industry = c.dict_id
+      left join base_dict d  on  cst.cust_level = d.dict_id
+       <include refid="customerQueryVo" />
+       <if test="start !=null">
+           LIMIT #{start},#{rows}
+       </if>
+    </select>
+
+    <!-- 根据queryVo查询数据条数 -->
+    <select id="queryCountByQueryVo" parameterType="com.hss.crm.pojo.QueryVo"
+            resultType="int">
+        SELECT count(1) FROM customer cst
+        <include refid="customerQueryVo" />
+    </select>
+
+    <!-- 根据queryVo查询数据条数 -->
+    <select id="queryCustomerById"
+            resultType="com.hss.crm.pojo.Customer">
+        SELECT * FROM customer where cust_id = #{id}
+
+    </select>
+
+    <select id="updateCustomerById"
+            parameterType="com.hss.crm.pojo.Customer">
+        update customer SET
+
+        <if test="cust_name !=null and cust_name != ''">
+            `cust_name` = #{cust_name},
+        </if>
+        <if test="cust_user_id !=null">
+            `cust_user_id` = #{cust_user_id},
+        </if>
+        <if test="cust_create_id !=null">
+            `cust_create_id` = #{cust_create_id},
+        </if>
+        <if test="cust_source !=null and cust_source != ''">
+            `cust_source` = #{cust_source},
+        </if>
+        <if test="cust_industry !=null and cust_industry != ''">
+            `cust_industry` = #{cust_industry},
+        </if>
+        <if test="cust_level !=null and cust_level != ''">
+            `cust_level` = #{cust_level},
+        </if>
+        <if test="cust_linkman !=null and cust_linkman != ''">
+            `cust_linkman` = #{cust_linkman},
+        </if>
+        <if test="cust_phone !=null and cust_phone != ''">
+            `cust_phone` = #{cust_phone},
+        </if>
+        <if test="cust_mobile !=null and cust_mobile != ''">
+            `cust_mobile` = #{cust_mobile},
+        </if>
+        <if test="cust_zipcode !=null and cust_zipcode != ''">
+            `cust_zipcode` = #{cust_zipcode},
+        </if>
+        <if test="cust_address !=null and cust_address != ''">
+            `cust_address` = #{cust_address},
+        </if>
+        `cust_createtime` = NOW()
+        where cust_id = #{cust_id}
+
+    </select>
+</mapper>
