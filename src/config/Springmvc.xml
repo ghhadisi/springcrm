@@ -35,4 +35,7 @@
 
 
     <context:property-placeholder location="classpath:config/resource.properties" />
+
+    <!--统一异常处理-->
+    <bean id="customHandleException" class="com.hss.crm.exception.CustomHandleException"/>
 </beans>
